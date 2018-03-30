@@ -9,4 +9,6 @@
     <string name="supplier_name">Supplier Name</string>
     <string name="supplier_phone_number">Supplier phone number</string>
     <string name="product_information">PRODUCT INFORMATION</string>
+    <string name="accept">accept</string>
+    <string name="delete">delete</string>
 </resources>

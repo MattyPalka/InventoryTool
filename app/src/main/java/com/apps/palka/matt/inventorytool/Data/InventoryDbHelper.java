@@ -20,7 +20,7 @@ public class InventoryDbHelper extends SQLiteOpenHelper{
     // SQLite command to create new database schema with entries
     private static final String SQL_CREATE_ENTRIES = "CREATE TABLE " + InventoryEntry.TABLE_NAME + "(" +
             InventoryEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            InventoryEntry.COLUMN_PRODUCT_NAME + " TEXT, " +
+            InventoryEntry.COLUMN_PRODUCT_NAME + " TEXT NOT NULL, " +
             InventoryEntry.COLUMN_PRODUCT_PRICE + " INTEGER NOT NULL, " +
             InventoryEntry.COLUMN_PRODUCT_QUANTITY + " INTEGER NOT NULL DEFAULT 0, " +
             InventoryEntry.COLUMN_PRODUCT_SUPPLIER_NAME + " TEXT, " +

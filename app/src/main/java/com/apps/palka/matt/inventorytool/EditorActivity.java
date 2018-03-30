@@ -2,6 +2,7 @@ package com.apps.palka.matt.inventorytool;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -29,11 +30,7 @@ public class EditorActivity extends AppCompatActivity {
     // Edit text field to enter product supplier's phone number
     private EditText mProductSupplierPhoneNumberEditText;
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        insertData();
-    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,16 +55,19 @@ public class EditorActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.accept:
                 insertData();
                 finish();
+                return true;
+            case R.id.delete:
+                //TODO: ADD DELETE DATABASE ITEM
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public void insertData(){
+    public void insertData() {
 
         // Grab data from given edit tex views
         // PRODUCT NAME
@@ -81,20 +81,19 @@ public class EditorActivity extends AppCompatActivity {
         // PRODUCT SUPPLIER PHONE NUMBER
         int productSupplierPhoneNumberInt = Integer.parseInt(mProductSupplierPhoneNumberEditText.getText().toString().trim());
 
-        InventoryDbHelper dbHelper = new InventoryDbHelper(this);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
 
         ContentValues values = new ContentValues();
         values.put(InventoryEntry.COLUMN_PRODUCT_NAME, productNameString);
         values.put(InventoryEntry.COLUMN_PRODUCT_PRICE, productPriceString);
         values.put(InventoryEntry.COLUMN_PRODUCT_QUANTITY, productQuantityInt);
-        values.put(InventoryEntry.COLUMN_PRODUCT_SUPPLIER_NAME, productNameString);
+        values.put(InventoryEntry.COLUMN_PRODUCT_SUPPLIER_NAME, productSupplierString);
         values.put(InventoryEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER, productSupplierPhoneNumberInt);
 
-        long newRowId = db.insert(InventoryEntry.TABLE_NAME, null, values);
+        Uri newRowUri = getContentResolver().insert(InventoryEntry.CONTENT_URI, values);
 
-        if (newRowId != -1){
-            Toast.makeText(this, "Success! product added with ID: " + newRowId, Toast.LENGTH_SHORT).show();
+        if (newRowUri != null) {
+            Toast.makeText(this, "Success! product added", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Something went wrong. \n Please try again", Toast.LENGTH_SHORT).show();
         }

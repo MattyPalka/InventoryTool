@@ -3,17 +3,21 @@ package com.apps.palka.matt.inventorytool;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-
 import com.apps.palka.matt.inventorytool.Data.InventoryContract.InventoryEntry;
-import com.apps.palka.matt.inventorytool.Data.InventoryDbHelper;
+
 
 public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        queryData();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,11 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private void queryData() {
         TextView displayDataTextView = findViewById(R.id.main_text_view);
 
-        //To access the database Instantiate subclass of SQLiteOpenHelper
-        //and pass the context, which is the current activity
-        InventoryDbHelper dbHelper = new InventoryDbHelper(this);
-        //Create and / or open a database to read from
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         // Columns of the tables that we want to get
         String[] projection = {
@@ -44,13 +43,8 @@ public class MainActivity extends AppCompatActivity {
                 InventoryEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER
         };
 
-        Cursor cursor = db.query(InventoryEntry.TABLE_NAME,
-                projection,
-                null,
-                null,
-                null,
-                null,
-                null);
+        Cursor cursor = getContentResolver().query(InventoryEntry.CONTENT_URI, projection,
+                null, null, null);
 
         try {
             displayDataTextView.setText("Inventory contains: " + cursor.getCount() + " items\n\n");
@@ -115,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, EditorActivity.class);
                 startActivity(intent);
                 return true;
+                //TODO: add menu option to delete all data (with extra security screen)
         }
         return super.onOptionsItemSelected(item);
     }
