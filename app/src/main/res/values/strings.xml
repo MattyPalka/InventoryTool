@@ -11,4 +11,6 @@
     <string name="product_information">PRODUCT INFORMATION</string>
     <string name="accept">accept</string>
     <string name="delete">delete</string>
+    <string name="inventory_empty_title">Your inventory seems empty</string>
+    <string name="inventory_empty_subtitle">Start by adding some items</string>
 </resources>

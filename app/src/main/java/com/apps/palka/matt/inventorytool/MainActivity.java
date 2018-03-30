@@ -7,7 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.view.View;
+import android.widget.ListView;
 import com.apps.palka.matt.inventorytool.Data.InventoryContract.InventoryEntry;
 
 
@@ -30,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void queryData() {
-        TextView displayDataTextView = findViewById(R.id.main_text_view);
 
 
         // Columns of the tables that we want to get
@@ -46,49 +46,15 @@ public class MainActivity extends AppCompatActivity {
         Cursor cursor = getContentResolver().query(InventoryEntry.CONTENT_URI, projection,
                 null, null, null);
 
-        try {
-            displayDataTextView.setText("Inventory contains: " + cursor.getCount() + " items\n\n");
-            displayDataTextView.append(InventoryEntry._ID + "\t|\t" +
-                    InventoryEntry.COLUMN_PRODUCT_NAME + "\t|\t" +
-                    InventoryEntry.COLUMN_PRODUCT_PRICE + "\t|\t" +
-                    InventoryEntry.COLUMN_PRODUCT_QUANTITY + "\t|\t" +
-                    InventoryEntry.COLUMN_PRODUCT_SUPPLIER_NAME + "\t|\t" +
-                    InventoryEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER);
+        //Find list view to populate
+        ListView lv = findViewById(R.id.list_view);
+        //setup cursor adapter
+        InventoryCursorAdapter inventoryCursorAdapter = new InventoryCursorAdapter(this, cursor);
+        //Attach cursor adapter to list view
+        lv.setAdapter(inventoryCursorAdapter);
 
-            //figure out the index of each column
-            int idColumnIndex = cursor.getColumnIndex(InventoryEntry._ID);
-            int productNameColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_PRODUCT_NAME);
-            int productPriceColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_PRODUCT_PRICE);
-            int productQuantityColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_PRODUCT_QUANTITY);
-            int productSupplierPhoneNumberColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER);
-            int productSupplierNameColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_PRODUCT_NAME);
-
-            //Iterate through all the returned rows in the cursor
-            while (cursor.moveToNext()) {
-                // Use that index to extract the String or Int value of the word
-                // at the current row the cursor is on
-                int currentID = cursor.getInt(idColumnIndex);
-                String currentProductName = cursor.getString(productNameColumnIndex);
-                int currentProductPrice = cursor.getInt(productPriceColumnIndex);
-                int currentProductQuantity = cursor.getInt(productQuantityColumnIndex);
-                String currentProductSupplier = cursor.getString(productSupplierNameColumnIndex);
-                int currentProductSupplierPhoneNumber = cursor.getInt(productSupplierPhoneNumberColumnIndex);
-
-                // display the values from each column of the current row in the Text View
-                displayDataTextView.append("\n" + currentID + "\t|\t" +
-                        currentProductName + "\t|\t" +
-                        currentProductPrice + "\t|\t" +
-                        currentProductQuantity + "\t|\t" +
-                        currentProductSupplier + "\t|\t" +
-                        currentProductSupplierPhoneNumber);
-            }
-
-
-        } finally {
-            // Always close the cursor when you're done reading from it. This releases all its
-            // resources and makes it invalid.
-            cursor.close();
-        }
+        View emptyView = findViewById(R.id.empty_view);
+        lv.setEmptyView(emptyView);
 
     }
 
