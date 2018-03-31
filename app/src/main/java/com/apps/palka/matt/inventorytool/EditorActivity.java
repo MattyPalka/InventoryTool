@@ -1,15 +1,20 @@
 package com.apps.palka.matt.inventorytool;
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -17,7 +22,11 @@ import com.apps.palka.matt.inventorytool.Data.InventoryContract.InventoryEntry;
 
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    //Indicator for the listener if the any fields within the item has changed (true if any field is updated)
+    private boolean mItemHasChanged = false;
+
     private static final int EXISTING_INVENTORY_ITEM_LOADER = 1;
+
     // Edit text field to enter Product Name
     private EditText mProductNameEditText;
 
@@ -55,6 +64,67 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mProductQuantityEditText = findViewById(R.id.product_quantity_input);
         mProductSupplierNameEditText = findViewById(R.id.supplier_name_input);
         mProductSupplierPhoneNumberEditText = findViewById(R.id.supplier_phone_number_input);
+
+        mProductNameEditText.setOnTouchListener(mTouchListener);
+        mProductPriceEditText.setOnTouchListener(mTouchListener);
+        mProductQuantityEditText.setOnTouchListener(mTouchListener);
+        mProductSupplierNameEditText.setOnTouchListener(mTouchListener);
+        mProductSupplierPhoneNumberEditText.setOnTouchListener(mTouchListener);
+    }
+
+    // OnTouchListener that listens for any user touches on a View, implying that they are modifying
+    // the view, and we change the mPetHasChanged boolean to true.
+    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            mItemHasChanged = true;
+            return false;
+        }
+    };
+
+    private void showUnsavedChangesDialog(
+            DialogInterface.OnClickListener discardButtonClickListener) {
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the positive and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.unsaved_changes_dialog_msg);
+        builder.setPositiveButton(R.string.discard, discardButtonClickListener);
+        builder.setNegativeButton(R.string.keep_editing, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Keep editing" button, so dismiss the dialog
+                // and continue editing the pet.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        // If the item hasn't changed, continue with handling back button press
+        if (!mItemHasChanged) {
+            super.onBackPressed();
+            return;
+        }
+
+        // Otherwise if there are unsaved changes, setup a dialog to warn the user.
+        // Create a click listener to handle the user confirming that changes should be discarded.
+        DialogInterface.OnClickListener discardButtonClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // User clicked "Discard" button, close the current activity.
+                        finish();
+                    }
+                };
+
+        // Show dialog that there are unsaved changes
+        showUnsavedChangesDialog(discardButtonClickListener);
     }
 
     @Override
@@ -75,6 +145,29 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             case R.id.delete:
                 //TODO: ADD DELETE DATABASE ITEM
                 return true;
+            case android.R.id.home:
+            // If the Item hasn't changed, continue with navigating up to parent activity
+            // which is the {@link MainActivity}.
+            if (!mItemHasChanged) {
+                NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                return true;
+            }
+
+            // Otherwise if there are unsaved changes, setup a dialog to warn the user.
+            // Create a click listener to handle the user confirming that
+            // changes should be discarded.
+            DialogInterface.OnClickListener discardButtonClickListener =
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // User clicked "Discard" button, navigate to parent activity.
+                            NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                        }
+                    };
+
+            // Show a dialog that notifies the user they have unsaved changes
+            showUnsavedChangesDialog(discardButtonClickListener);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
