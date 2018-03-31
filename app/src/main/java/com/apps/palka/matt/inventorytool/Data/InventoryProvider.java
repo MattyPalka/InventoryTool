@@ -89,6 +89,7 @@ public class InventoryProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Cannot query illegal URI " + uri);
         }
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
 
@@ -141,15 +142,23 @@ public class InventoryProvider extends ContentProvider {
         // get writable database
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
 
+        //number of rows deleted
+        int rowsDeleted;
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case INVENTORY:
-                return database.delete(InventoryContract.InventoryEntry.TABLE_NAME, null, null);
+                rowsDeleted = database.delete(InventoryContract.InventoryEntry.TABLE_NAME, null, null);
+                break;
             case INVENTORY_ID:
-                return database.delete(InventoryContract.InventoryEntry.TABLE_NAME, selection, selectionArgs);
+                rowsDeleted = database.delete(InventoryContract.InventoryEntry.TABLE_NAME, selection, selectionArgs);
+                break;
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
+        if (rowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsDeleted;
     }
 
     /**
@@ -212,7 +221,12 @@ public class InventoryProvider extends ContentProvider {
 
         // Otherwise get writable database to update the data
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
-        return database.update(InventoryContract.InventoryEntry.TABLE_NAME, values, selection, selectionArgs);
+        int rowsUpdated = database.update(InventoryContract.InventoryEntry.TABLE_NAME, values, selection, selectionArgs);
+        if (rowsUpdated != 0) {
+            // notify listener that there's a change in the database
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsUpdated;
     }
 
     /**
@@ -248,6 +262,8 @@ public class InventoryProvider extends ContentProvider {
             Log.e(LOG_TAG, "Failed to insert the row for ID: " + id);
             return null;
         }
+        // notify listeners that there's change in the database
+        getContext().getContentResolver().notifyChange(uri, null);
         // Once we know the ID of the new row in the table,
         // return the new URI with the ID appended to the end of it
         return ContentUris.withAppendedId(uri, id);

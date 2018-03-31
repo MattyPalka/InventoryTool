@@ -1,62 +1,66 @@
 package com.apps.palka.matt.inventorytool;
 
 
+import android.app.LoaderManager;
+import android.content.ContentUris;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+
 import com.apps.palka.matt.inventorytool.Data.InventoryContract.InventoryEntry;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        queryData();
-    }
+    private static final int INVENTORY_LOADER = 0;
+    //This is the adapter used to display inventory list of items
+    InventoryCursorAdapter inventoryCursorAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        queryData();
-
-    }
-
-
-    private void queryData() {
-
-
-        // Columns of the tables that we want to get
-        String[] projection = {
-                InventoryEntry._ID,
-                InventoryEntry.COLUMN_PRODUCT_NAME,
-                InventoryEntry.COLUMN_PRODUCT_PRICE,
-                InventoryEntry.COLUMN_PRODUCT_QUANTITY,
-                InventoryEntry.COLUMN_PRODUCT_SUPPLIER_NAME,
-                InventoryEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER
-        };
-
-        Cursor cursor = getContentResolver().query(InventoryEntry.CONTENT_URI, projection,
-                null, null, null);
 
         //Find list view to populate
         ListView lv = findViewById(R.id.list_view);
         //setup cursor adapter
-        InventoryCursorAdapter inventoryCursorAdapter = new InventoryCursorAdapter(this, cursor);
+        inventoryCursorAdapter = new InventoryCursorAdapter(this, null);
         //Attach cursor adapter to list view
         lv.setAdapter(inventoryCursorAdapter);
 
+        //setup the view for an empty list
         View emptyView = findViewById(R.id.empty_view);
         lv.setEmptyView(emptyView);
 
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Intent intent = new Intent(getApplicationContext(), EditorActivity.class);
+                // make the uri with the current item's id
+                Uri currentItem = ContentUris.withAppendedId(InventoryEntry.CONTENT_URI, id);
+
+                intent.setData(currentItem);
+                startActivity(intent);
+            }
+        });
+
+        // Prepare the loader.  Either re-connect with an existing one,
+        // or start a new one.
+        getLoaderManager().initLoader(INVENTORY_LOADER, null, this);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -75,8 +79,46 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, EditorActivity.class);
                 startActivity(intent);
                 return true;
-                //TODO: add menu option to delete all data (with extra security screen)
+            //TODO: add menu option to delete all data (with extra security screen)
+            //TODO: add menu option for settings where user can choose sortOrder via column (ASC + DESC)
+
         }
         return super.onOptionsItemSelected(item);
     }
+
+    // Called when a new Loader needs to be created
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
+        // Columns of the tables that we want to get in one row
+        String[] projection = {
+                InventoryEntry._ID,
+                InventoryEntry.COLUMN_PRODUCT_NAME,
+                InventoryEntry.COLUMN_PRODUCT_PRICE,
+                InventoryEntry.COLUMN_PRODUCT_QUANTITY,
+        };
+
+        // Now create and return a CursorLoader that will take care of
+        // creating a Cursor for the data being displayed.
+        return new CursorLoader(this, InventoryEntry.CONTENT_URI, projection, null,
+                null, null);
+    }
+
+    // Called when a previously created loader has finished loading
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        // Swap the new cursor in. (The framework will take care of closing the
+        // old cursor once we return.)
+        inventoryCursorAdapter.swapCursor(cursor);
+    }
+
+    // Called when a previously created loader is reset, making the data unavailable
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // This is called when the last Cursor provided to onLoadFinished()
+        // above is about to be closed. We need to make sure we are no
+        // longer using it.
+        inventoryCursorAdapter.swapCursor(null);
+    }
+
+
 }

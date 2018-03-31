@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Inventory Tool</string>
     <string name="menu_add">add</string>
-    <string name="editor_activity_label">Add / Edit Item</string>
+    <string name="editor_activity_label_add_new">Add new item</string>
+    <string name="editor_activity_label_edit">Edit item</string>
     <string name="product_name">Product Name</string>
     <string name="quantity">Quantity</string>
     <string name="price">price</string>
@@ -13,4 +14,5 @@
     <string name="delete">delete</string>
     <string name="inventory_empty_title">Your inventory seems empty</string>
     <string name="inventory_empty_subtitle">Start by adding some items</string>
+    <string name="editor_failed">Something went wrong.   Please try again</string>
 </resources>

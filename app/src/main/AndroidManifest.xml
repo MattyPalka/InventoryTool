@@ -18,7 +18,6 @@
         </activity>
         <activity
             android:name=".EditorActivity"
-            android:label="@string/editor_activity_label"
             android:parentActivityName=".MainActivity" />
         <provider
             android:authorities="com.apps.palka.matt.inventorytool"

@@ -29,10 +29,10 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/quantity" />
+            android:text="@string/price" />
 
         <EditText
-            android:id="@+id/product_quantity_input"
+            android:id="@+id/product_price_input"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -48,10 +48,10 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/price" />
+            android:text="@string/quantity" />
 
         <EditText
-            android:id="@+id/product_price_input"
+            android:id="@+id/product_quantity_input"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
