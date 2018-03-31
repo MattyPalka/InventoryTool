@@ -35,7 +35,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private Uri mCurrentItem;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,22 +84,54 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // Grab data from given edit tex views
         // PRODUCT NAME
         String productNameString = mProductNameEditText.getText().toString().trim();
+
         // PRODUCT PRICE
-        int productPriceString = Integer.parseInt(mProductPriceEditText.getText().toString().trim());
+        String productPriceString = mProductPriceEditText.getText().toString().trim();
+        int productPrice;
+
         // PRODUCT QUANTITY
-        int productQuantityInt = Integer.parseInt(mProductQuantityEditText.getText().toString().trim());
+        String productQuantityString = mProductQuantityEditText.getText().toString().trim();
+        int productQuantity = 0;
+
         // PRODUCT SUPPLIER NAME
         String productSupplierString = mProductSupplierNameEditText.getText().toString().trim();
         // PRODUCT SUPPLIER PHONE NUMBER
-        int productSupplierPhoneNumberInt = Integer.parseInt(mProductSupplierPhoneNumberEditText.getText().toString().trim());
+        String productSupplierPhoneNumberString = mProductSupplierPhoneNumberEditText.getText().toString().trim();
+        int productSupplierPhoneNumber;
 
+        // Check if all the edit fields are empty and if so return without any info
+        if (mCurrentItem == null && productNameString.isEmpty() && productPriceString.isEmpty() &&
+                productQuantityString.isEmpty() && productSupplierString.isEmpty() && productSupplierPhoneNumberString.isEmpty()){
+            return;
+        }
+
+        // check if there is input in product price. If there isn't return and display toast to set a price
+        // if there is set it's value to productPrice
+        if (productPriceString.isEmpty()) {
+            Toast.makeText(this, "Set price", Toast.LENGTH_SHORT).show();
+            return;
+        } else {
+            productPrice = Integer.parseInt(productPriceString);
+        }
+
+        // check if there is input in quantity and if so set it to productQuantity value
+        if (!(productQuantityString.isEmpty())) {
+            productQuantity = Integer.parseInt(productQuantityString);
+        }
+
+        // if supplier phone number is empty set it to 0 otherwise set it to the proper number
+        if (productSupplierPhoneNumberString.isEmpty()) {
+            productSupplierPhoneNumber = 0;
+        } else {
+            productSupplierPhoneNumber = Integer.parseInt(productSupplierPhoneNumberString);
+        }
 
         ContentValues values = new ContentValues();
         values.put(InventoryEntry.COLUMN_PRODUCT_NAME, productNameString);
-        values.put(InventoryEntry.COLUMN_PRODUCT_PRICE, productPriceString);
-        values.put(InventoryEntry.COLUMN_PRODUCT_QUANTITY, productQuantityInt);
+        values.put(InventoryEntry.COLUMN_PRODUCT_PRICE, productPrice);
+        values.put(InventoryEntry.COLUMN_PRODUCT_QUANTITY, productQuantity);
         values.put(InventoryEntry.COLUMN_PRODUCT_SUPPLIER_NAME, productSupplierString);
-        values.put(InventoryEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER, productSupplierPhoneNumberInt);
+        values.put(InventoryEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER, productSupplierPhoneNumber);
 
         // Check if it's the new product screen (null) or edit screen (not null)
         if (mCurrentItem == null) {

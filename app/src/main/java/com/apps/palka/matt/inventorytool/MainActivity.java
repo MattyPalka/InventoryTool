@@ -26,12 +26,10 @@ public class MainActivity extends AppCompatActivity
     //This is the adapter used to display inventory list of items
     InventoryCursorAdapter inventoryCursorAdapter;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         //Find list view to populate
         ListView lv = findViewById(R.id.list_view);
@@ -60,7 +58,6 @@ public class MainActivity extends AppCompatActivity
         // or start a new one.
         getLoaderManager().initLoader(INVENTORY_LOADER, null, this);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -119,6 +116,4 @@ public class MainActivity extends AppCompatActivity
         // longer using it.
         inventoryCursorAdapter.swapCursor(null);
     }
-
-
 }

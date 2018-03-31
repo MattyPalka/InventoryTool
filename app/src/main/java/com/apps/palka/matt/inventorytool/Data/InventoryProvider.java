@@ -47,7 +47,7 @@ public class InventoryProvider extends ContentProvider {
      * Perform a query for a given URI
      *
      * @param uri           query URI
-     * @param projection
+     * @param projection    columns that we want to get from one row
      * @param selection
      * @param selectionArgs
      * @param sortOrder
