@@ -1,9 +1,11 @@
 package com.apps.palka.matt.inventorytool;
 
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -15,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.apps.palka.matt.inventorytool.Data.InventoryContract.InventoryEntry;
 
@@ -76,8 +79,12 @@ public class MainActivity extends AppCompatActivity
                 Intent intent = new Intent(this, EditorActivity.class);
                 startActivity(intent);
                 return true;
-            //TODO: add menu option to delete all data (with extra security screen)
-            //TODO: add menu option for settings where user can choose sortOrder via column (ASC + DESC)
+            case R.id.delete_all:
+                showDeleteConfirmationDialog();
+                return true;
+            case R.id.settings:
+                //TODO: create settings where user can choose sortOrder via column (ASC + DESC)
+                return true;
 
         }
         return super.onOptionsItemSelected(item);
@@ -115,5 +122,45 @@ public class MainActivity extends AppCompatActivity
         // above is about to be closed. We need to make sure we are no
         // longer using it.
         inventoryCursorAdapter.swapCursor(null);
+    }
+
+    private void showDeleteConfirmationDialog() {
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the positive and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_all_dialog_msg);
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Delete" button, so delete the pet.
+                deleteAllItems();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Cancel" button, so dismiss the dialog
+                // and continue editing the pet.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    /**
+     * Perform the deletion of item in the database.
+     */
+    private void deleteAllItems() {
+        int deletedRow = getContentResolver().delete(InventoryEntry.CONTENT_URI, null, null);
+        if (deletedRow == 0) {
+            Toast.makeText(this, R.string.delete_all_items_failed, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, R.string.delete_all_item_successful, Toast.LENGTH_SHORT).show();
+        }
+
+
     }
 }

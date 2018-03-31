@@ -147,10 +147,12 @@ public class InventoryProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case INVENTORY:
-                rowsDeleted = database.delete(InventoryContract.InventoryEntry.TABLE_NAME, null, null);
+                rowsDeleted = database.delete(InventoryContract.InventoryEntry.TABLE_NAME,
+                        null, null);
                 break;
             case INVENTORY_ID:
-                rowsDeleted = database.delete(InventoryContract.InventoryEntry.TABLE_NAME, selection, selectionArgs);
+                rowsDeleted = database.delete(InventoryContract.InventoryEntry.TABLE_NAME,
+                        "_ID=?", new String[]{String.valueOf(ContentUris.parseId(uri))});
                 break;
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);

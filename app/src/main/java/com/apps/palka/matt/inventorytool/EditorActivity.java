@@ -53,6 +53,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         if (mCurrentItem == null) {
             setTitle(R.string.editor_activity_label_add_new);
+            // Invalidate the options menu, so the "Delete" menu option can be hidden.
+            // (It doesn't make sense to delete a pet that hasn't been created yet.)
+            invalidateOptionsMenu();
         } else {
             setTitle(R.string.editor_activity_label_edit);
             getLoaderManager().initLoader(EXISTING_INVENTORY_ITEM_LOADER, null, this);
@@ -128,11 +131,23 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        //if this is new item hide the "delete" menu item
+        if (mCurrentItem == null){
+            MenuItem menuItem = menu.findItem(R.id.delete);
+            menuItem.setVisible(false);
+        }
+        return true;
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate menu options from res/menu/edit.xml file.
         // This adds menu items to the bar.
         getMenuInflater().inflate(R.menu.edit, menu);
         return super.onCreateOptionsMenu(menu);
+
     }
 
     @Override
@@ -143,7 +158,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 finish();
                 return true;
             case R.id.delete:
-                //TODO: ADD DELETE DATABASE ITEM
+                showDeleteConfirmationDialog();
                 return true;
             case android.R.id.home:
             // If the Item hasn't changed, continue with navigating up to parent activity
@@ -170,6 +185,47 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showDeleteConfirmationDialog() {
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the positive and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_dialog_msg);
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Delete" button, so delete the pet.
+                deleteItem();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Cancel" button, so dismiss the dialog
+                // and continue editing the pet.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    /**
+     * Perform the deletion of item in the database.
+     */
+    private void deleteItem() {
+        if (mCurrentItem != null) {
+            int deletedRow = getContentResolver().delete(mCurrentItem, null, null);
+            if (deletedRow == 0) {
+                Toast.makeText(this, R.string.editor_delete_item_failed, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, R.string.editor_delete_item_successful, Toast.LENGTH_SHORT).show();
+            }
+        }
+        finish();
     }
 
     public void saveData() {
@@ -201,7 +257,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // check if there is input in product price. If there isn't return and display toast to set a price
         // if there is set it's value to productPrice
         if (productPriceString.isEmpty()) {
-            Toast.makeText(this, "Set price", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.set_price, Toast.LENGTH_SHORT).show();
             return;
         } else {
             productPrice = Integer.parseInt(productPriceString);
@@ -231,7 +287,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             //If new product insert new row in a database
             Uri newRowUri = getContentResolver().insert(InventoryEntry.CONTENT_URI, values);
             if (newRowUri != null) {
-                Toast.makeText(this, "New product added", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.product_added, Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, R.string.editor_failed, Toast.LENGTH_SHORT).show();
             }
@@ -241,7 +297,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             if (updatedItems == 0) {
                 Toast.makeText(this, R.string.editor_failed, Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Product updated", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.editor_success, Toast.LENGTH_SHORT).show();
             }
         }
     }
