@@ -5,6 +5,7 @@ import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -15,7 +16,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.apps.palka.matt.inventorytool.Data.InventoryContract.InventoryEntry;
@@ -44,6 +48,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private Uri mCurrentItem;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,29 +56,84 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         //get the URI of the current inventory item
         mCurrentItem = getIntent().getData();
 
-        if (mCurrentItem == null) {
-            setTitle(R.string.editor_activity_label_add_new);
-            // Invalidate the options menu, so the "Delete" menu option can be hidden.
-            // (It doesn't make sense to delete a pet that hasn't been created yet.)
-            invalidateOptionsMenu();
-        } else {
-            setTitle(R.string.editor_activity_label_edit);
-            getLoaderManager().initLoader(EXISTING_INVENTORY_ITEM_LOADER, null, this);
-        }
-
         // find all the relevant views that will be used to recieve input from the user
         mProductNameEditText = findViewById(R.id.product_name_input);
         mProductPriceEditText = findViewById(R.id.product_price_input);
         mProductQuantityEditText = findViewById(R.id.product_quantity_input);
         mProductSupplierNameEditText = findViewById(R.id.supplier_name_input);
         mProductSupplierPhoneNumberEditText = findViewById(R.id.supplier_phone_number_input);
+        TextView mContactSupplier = findViewById(R.id.contact_supplier_button);
+        LinearLayout quickQuantityContainer = findViewById(R.id.quick_quantity_container);
+        Button addQuantity = findViewById(R.id.add_quantity_button);
+        Button subtractQuantity = findViewById(R.id.subtract_quantity_button);
+
+        if (mCurrentItem == null) {
+            setTitle(R.string.editor_activity_label_add_new);
+            // Invalidate the options menu, so the "Delete" menu option can be hidden.
+            // (It doesn't make sense to delete a pet that hasn't been created yet.)
+            mContactSupplier.setVisibility(View.GONE);
+            quickQuantityContainer.setVisibility(View.GONE);
+            invalidateOptionsMenu();
+        } else {
+            setTitle(R.string.editor_activity_label_edit);
+            getLoaderManager().initLoader(EXISTING_INVENTORY_ITEM_LOADER, null, this);
+        }
 
         mProductNameEditText.setOnTouchListener(mTouchListener);
         mProductPriceEditText.setOnTouchListener(mTouchListener);
         mProductQuantityEditText.setOnTouchListener(mTouchListener);
         mProductSupplierNameEditText.setOnTouchListener(mTouchListener);
         mProductSupplierPhoneNumberEditText.setOnTouchListener(mTouchListener);
+        mContactSupplier.setOnClickListener(mOnContactClickListener);
+        addQuantity.setOnClickListener(mAddQuantityClickListener);
+        subtractQuantity.setOnClickListener(mSubtractQuantityClickListener);
     }
+
+    // This method is called when user click on "Contact supplier" button and provides user with
+    // dialer
+    private View.OnClickListener mOnContactClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            String supplierPhoneNumber = mProductSupplierPhoneNumberEditText.getText().toString().trim();
+            if (supplierPhoneNumber.isEmpty()) {
+                Toast.makeText(getApplication(), "Cannot contact the supplier", Toast.LENGTH_SHORT).show();
+                return;
+            } else {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + supplierPhoneNumber));
+                startActivity(intent);
+            }
+        }
+    };
+
+    // this method is called when user clicks on "quick add quantity" button and adds 1 to item's quantity
+    private View.OnClickListener mAddQuantityClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            int productQuantity = Integer.parseInt(mProductQuantityEditText.getText().toString().trim());
+            productQuantity++;
+            ContentValues values = new ContentValues();
+            values.put(InventoryEntry.COLUMN_PRODUCT_QUANTITY, productQuantity);
+            getContentResolver().update(mCurrentItem, values, null, null);
+        }
+    };
+
+
+    //this method is called when user click on "quick subtract quantity" button and subtracts 1 from item's quantity
+    private View.OnClickListener mSubtractQuantityClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            int productQuantity = Integer.parseInt(mProductQuantityEditText.getText().toString().trim());
+            if (productQuantity <= 0) {
+                return;
+            } else {
+                productQuantity--;
+                ContentValues values = new ContentValues();
+                values.put(InventoryEntry.COLUMN_PRODUCT_QUANTITY, productQuantity);
+                getContentResolver().update(mCurrentItem, values, null, null);
+            }
+        }
+    };
 
     // OnTouchListener that listens for any user touches on a View, implying that they are modifying
     // the view, and we change the mPetHasChanged boolean to true.
@@ -134,7 +194,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         //if this is new item hide the "delete" menu item
-        if (mCurrentItem == null){
+        if (mCurrentItem == null) {
             MenuItem menuItem = menu.findItem(R.id.delete);
             menuItem.setVisible(false);
         }
@@ -161,28 +221,28 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 showDeleteConfirmationDialog();
                 return true;
             case android.R.id.home:
-            // If the Item hasn't changed, continue with navigating up to parent activity
-            // which is the {@link MainActivity}.
-            if (!mItemHasChanged) {
-                NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                // If the Item hasn't changed, continue with navigating up to parent activity
+                // which is the {@link MainActivity}.
+                if (!mItemHasChanged) {
+                    NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                    return true;
+                }
+
+                // Otherwise if there are unsaved changes, setup a dialog to warn the user.
+                // Create a click listener to handle the user confirming that
+                // changes should be discarded.
+                DialogInterface.OnClickListener discardButtonClickListener =
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // User clicked "Discard" button, navigate to parent activity.
+                                NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                            }
+                        };
+
+                // Show a dialog that notifies the user they have unsaved changes
+                showUnsavedChangesDialog(discardButtonClickListener);
                 return true;
-            }
-
-            // Otherwise if there are unsaved changes, setup a dialog to warn the user.
-            // Create a click listener to handle the user confirming that
-            // changes should be discarded.
-            DialogInterface.OnClickListener discardButtonClickListener =
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            // User clicked "Discard" button, navigate to parent activity.
-                            NavUtils.navigateUpFromSameTask(EditorActivity.this);
-                        }
-                    };
-
-            // Show a dialog that notifies the user they have unsaved changes
-            showUnsavedChangesDialog(discardButtonClickListener);
-            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -241,16 +301,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // PRODUCT QUANTITY
         String productQuantityString = mProductQuantityEditText.getText().toString().trim();
         int productQuantity = 0;
-
         // PRODUCT SUPPLIER NAME
         String productSupplierString = mProductSupplierNameEditText.getText().toString().trim();
         // PRODUCT SUPPLIER PHONE NUMBER
         String productSupplierPhoneNumberString = mProductSupplierPhoneNumberEditText.getText().toString().trim();
-        int productSupplierPhoneNumber;
+
 
         // Check if all the edit fields are empty and if so return without any info
         if (mCurrentItem == null && productNameString.isEmpty() && productPriceString.isEmpty() &&
-                productQuantityString.isEmpty() && productSupplierString.isEmpty() && productSupplierPhoneNumberString.isEmpty()){
+                productQuantityString.isEmpty() && productSupplierString.isEmpty() && productSupplierPhoneNumberString.isEmpty()) {
             return;
         }
 
@@ -268,19 +327,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             productQuantity = Integer.parseInt(productQuantityString);
         }
 
-        // if supplier phone number is empty set it to 0 otherwise set it to the proper number
-        if (productSupplierPhoneNumberString.isEmpty()) {
-            productSupplierPhoneNumber = 0;
-        } else {
-            productSupplierPhoneNumber = Integer.parseInt(productSupplierPhoneNumberString);
-        }
 
         ContentValues values = new ContentValues();
         values.put(InventoryEntry.COLUMN_PRODUCT_NAME, productNameString);
         values.put(InventoryEntry.COLUMN_PRODUCT_PRICE, productPrice);
         values.put(InventoryEntry.COLUMN_PRODUCT_QUANTITY, productQuantity);
         values.put(InventoryEntry.COLUMN_PRODUCT_SUPPLIER_NAME, productSupplierString);
-        values.put(InventoryEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER, productSupplierPhoneNumber);
+        values.put(InventoryEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER, productSupplierPhoneNumberString);
 
         // Check if it's the new product screen (null) or edit screen (not null)
         if (mCurrentItem == null) {
@@ -334,14 +387,14 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             int price = cursor.getInt(cursor.getColumnIndexOrThrow(InventoryEntry.COLUMN_PRODUCT_PRICE));
             int quantity = cursor.getInt(cursor.getColumnIndexOrThrow(InventoryEntry.COLUMN_PRODUCT_QUANTITY));
             String supplierName = cursor.getString(cursor.getColumnIndexOrThrow(InventoryEntry.COLUMN_PRODUCT_SUPPLIER_NAME));
-            int supplierPhoneNumber = cursor.getInt(cursor.getColumnIndexOrThrow(InventoryEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER));
+            String supplierPhoneNumber = cursor.getString(cursor.getColumnIndexOrThrow(InventoryEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER));
 
             // Update the views on the screen with the values from the database
             mProductNameEditText.setText(name);
             mProductPriceEditText.setText(String.valueOf(price));
             mProductQuantityEditText.setText(String.valueOf(quantity));
             mProductSupplierNameEditText.setText(supplierName);
-            mProductSupplierPhoneNumberEditText.setText(String.valueOf(supplierPhoneNumber));
+            mProductSupplierPhoneNumberEditText.setText(supplierPhoneNumber);
         }
     }
 
@@ -354,4 +407,5 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mProductSupplierNameEditText.setText(R.string.supplier_name);
         mProductSupplierPhoneNumberEditText.setText(R.string.supplier_phone_number);
     }
+
 }

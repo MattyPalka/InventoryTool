@@ -47,4 +47,8 @@
     <string name="delete_all_items_failed">Error deleting items</string>
     <string name="delete_all_item_successful">All items deleted</string>
     <string name="delete_all_dialog_msg">Delete all items?</string>
+    <string name="sold">sold</string>
+    <string name="contact_supplier">Contact supplier</string>
+    <string name="plus1">+1</string>
+    <string name="minus1">-1</string>
 </resources>

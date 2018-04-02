@@ -3,64 +3,87 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp">
+    android:padding="8dp"
+    >
 
     <TextView
-        android:id="@+id/product_name_display"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:textAppearance="?android:textAppearanceMedium"
-        android:textStyle="bold"
-        android:layout_marginBottom="4dp"
-        tools:text="Item Name" />
-
-    <TextView
-        android:id="@+id/price_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/product_name_display"
+        android:id="@+id/sold_button"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
         android:layout_marginEnd="8dp"
-        android:text="@string/price"
+        android:background="?android:selectableItemBackground"
+        android:drawableTop="@drawable/ic_shopping_cart_36dp"
+        android:gravity="center"
+        android:text="@string/sold"
         android:textAllCaps="true"
-        android:textAppearance="?android:textAppearanceSmall"
-        android:textColor="@color/colorAccent" />
+        android:textAppearance="?android:textAppearanceSmall" />
 
-    <TextView
-        android:id="@+id/product_price_display"
+    <RelativeLayout
+        android:id="@+id/item_info_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/product_name_display"
-        android:layout_toEndOf="@id/price_label"
-        tools:text="0" />
+        android:layout_centerInParent="true"
+        android:layout_toRightOf="@id/sold_button">
 
-    <TextView
-        android:id="@+id/quantity_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/product_name_display"
-        android:layout_marginEnd="8dp"
-        android:layout_toStartOf="@id/product_quantity_display"
-        android:text="@string/quantity"
-        android:textAllCaps="true"
-        android:textAppearance="?android:textAppearanceSmall"
-        android:textColor="@color/colorAccent" />
+        <TextView
+            android:id="@+id/product_name_display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textStyle="bold"
+            tools:text="Item Name" />
 
-    <TextView
-        android:id="@+id/product_quantity_display"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/info_icon"
-        android:layout_below="@id/product_name_display"
-        tools:text="0" />
+        <TextView
+            android:id="@+id/price_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/product_name_display"
+            android:layout_marginEnd="8dp"
 
-    <ImageView
-        android:layout_marginLeft="16dp"
-        android:id="@+id/info_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:src="@drawable/ic_info_outline_24dp" />
+            android:text="@string/price"
+            android:textAllCaps="true"
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textColor="@color/colorAccent" />
+
+        <TextView
+            android:id="@+id/product_price_display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/product_name_display"
+            android:layout_toEndOf="@id/price_label"
+            tools:text="0" />
+
+        <TextView
+            android:id="@+id/quantity_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/product_name_display"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@id/product_quantity_display"
+            android:text="@string/quantity"
+            android:textAllCaps="true"
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textColor="@color/colorAccent" />
+
+        <TextView
+            android:id="@+id/product_quantity_display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/product_name_display"
+            android:layout_toLeftOf="@id/info_icon"
+            tools:text="0" />
+
+        <ImageView
+            android:id="@+id/info_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="16dp"
+            android:src="@drawable/ic_info_outline_24dp" />
+
+    </RelativeLayout>
+
 
 </RelativeLayout>

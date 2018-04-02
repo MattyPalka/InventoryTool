@@ -24,7 +24,7 @@ public class InventoryDbHelper extends SQLiteOpenHelper{
             InventoryEntry.COLUMN_PRODUCT_PRICE + " INTEGER NOT NULL, " +
             InventoryEntry.COLUMN_PRODUCT_QUANTITY + " INTEGER NOT NULL DEFAULT 0, " +
             InventoryEntry.COLUMN_PRODUCT_SUPPLIER_NAME + " TEXT, " +
-            InventoryEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER + " INTEGER);";
+            InventoryEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER + " TEXT);";
 
     // SQLite command to delete existing database if it exists
     private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS" + InventoryEntry.TABLE_NAME;

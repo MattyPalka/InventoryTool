@@ -29,7 +29,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/price" />
+            android:text="@string/price"
+            android:textAllCaps="true" />
 
         <EditText
             android:id="@+id/product_price_input"
@@ -45,17 +46,51 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/quantity" />
-
-        <EditText
-            android:id="@+id/product_quantity_input"
+        <LinearLayout
+            android:id="@+id/quick_quantity_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:inputType="number" />
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/subtract_quantity_button"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:text="@string/minus1" />
+
+            <ImageView
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_shopping_cart_36dp" />
+
+            <Button
+                android:id="@+id/add_quantity_button"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:text="@string/plus1" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/quantity"
+                android:textAllCaps="true" />
+
+            <EditText
+                android:id="@+id/product_quantity_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:inputType="number" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -79,5 +114,20 @@
         android:layout_height="wrap_content"
         android:hint="@string/supplier_phone_number"
         android:inputType="phone" />
+
+    <TextView
+        android:id="@+id/contact_supplier_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:background="?android:selectableItemBackground"
+        android:drawablePadding="8dp"
+        android:drawableStart="@drawable/ic_phone_44dp"
+        android:gravity="center"
+        android:text="@string/contact_supplier"
+        android:textAllCaps="true"
+        android:textColor="@color/colorAccent"
+        android:textStyle="bold" />
 
 </LinearLayout>

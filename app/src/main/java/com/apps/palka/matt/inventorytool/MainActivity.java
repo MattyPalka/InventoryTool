@@ -45,13 +45,15 @@ public class MainActivity extends AppCompatActivity
         View emptyView = findViewById(R.id.empty_view);
         lv.setEmptyView(emptyView);
 
+
+
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
+                //When pressed on list item go to detailed/ edit screen of that item
                 Intent intent = new Intent(getApplicationContext(), EditorActivity.class);
                 // make the uri with the current item's id
                 Uri currentItem = ContentUris.withAppendedId(InventoryEntry.CONTENT_URI, id);
-
                 intent.setData(currentItem);
                 startActivity(intent);
             }
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity
         // or start a new one.
         getLoaderManager().initLoader(INVENTORY_LOADER, null, this);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
